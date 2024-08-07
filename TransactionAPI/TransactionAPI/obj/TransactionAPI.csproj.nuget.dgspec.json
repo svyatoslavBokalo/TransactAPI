@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\PC\\source\\MyGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\TransactionAPI.csproj": {}
+    "D:\\RepoGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\TransactionAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\PC\\source\\MyGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\TransactionAPI.csproj": {
+    "D:\\RepoGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\TransactionAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\PC\\source\\MyGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\TransactionAPI.csproj",
+        "projectUniqueName": "D:\\RepoGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\TransactionAPI.csproj",
         "projectName": "TransactionAPI",
-        "projectPath": "C:\\Users\\PC\\source\\MyGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\TransactionAPI.csproj",
-        "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\PC\\source\\MyGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\obj\\",
+        "projectPath": "D:\\RepoGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\TransactionAPI.csproj",
+        "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
+        "outputPath": "D:\\RepoGit\\TransactAPI\\TransactionAPI\\TransactionAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -44,6 +44,24 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.35, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.7, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.7, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.7, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.4.0, )"
@@ -68,7 +86,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
