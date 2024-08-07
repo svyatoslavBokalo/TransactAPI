@@ -16,7 +16,7 @@ namespace TransactionAPI
             // Add services to the container.
             builder.Services.AddDbContext<TransactContextDB>();
 
-            //using(var context = new TransactContextDB())
+            //using (var context = new TransactContextDB())
             //{
             //    var res = context.test.ToList();
             //    string k = "dsad";
