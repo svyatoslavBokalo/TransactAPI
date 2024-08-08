@@ -137,3 +137,4 @@ D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\obj\Debug\net8.0\refint\Tra
 D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\obj\Debug\net8.0\TransactionAPI.pdb
 D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\obj\Debug\net8.0\TransactionAPI.genruntimeconfig.cache
 D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\obj\Debug\net8.0\ref\TransactionAPI.dll
+D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\bin\Debug\net8.0\CsvHelper.dll

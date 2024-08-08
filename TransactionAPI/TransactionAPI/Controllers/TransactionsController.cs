@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CsvHelper;
+using Microsoft.AspNetCore.Mvc;
+using System.Data;
+using System.Formats.Asn1;
+using System.Globalization;
+using TransactionAPI.BusinessLogic;
 using TransactionAPI.Models;
 using TransactionAPI.Services;
 
@@ -28,6 +33,54 @@ namespace TransactionAPI.Controllers
             return Ok();
         }
 
+        [HttpPost("importFile")]
+        public async Task<IActionResult> ImportTransactions(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("Please upload a valid CSV file.");
+            }
+
+            var transactions = new List<TransactionModel>();
+
+            using (var stream = new StreamReader(file.OpenReadStream()))
+            using (var csv = new CsvReader(stream, CultureInfo.InvariantCulture))
+            {
+                csv.Read();
+                csv.ReadHeader();
+
+                while (csv.Read())
+                {
+                    try
+                    {
+                        var transaction = ExcelWorking.ParseFromCSV(csv);
+
+                        transactions.Add(transaction);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine($"Error reading row: {ex.Message}");
+                    }
+                }
+            }
+
+            foreach (var transaction in transactions)
+            {
+                await _transactionService.AddOrUpdateTransactionAsync(transaction);
+            }
+
+            return Ok();
+        }
+        private DateTime ParseDate(string dateStr)
+        {
+            DateTime date;
+            if (!DateTime.TryParseExact(dateStr, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            {
+                // Handle parsing error or assign a default value
+                date = DateTime.MinValue; // or throw an exception if necessary
+            }
+            return date;
+        }
         //[HttpPost]
         //public async Task<IActionResult> ImportTransactions([FromBody] List<TransactionModel> transactions)
         //{
