@@ -5,7 +5,7 @@ using System.Formats.Asn1;
 using System.Globalization;
 using TransactionAPI.BusinessLogic;
 using TransactionAPI.Models;
-using TransactionAPI.Services;
+using TransactionAPI.Services.Implementation;
 
 namespace TransactionAPI.Controllers
 {
@@ -53,7 +53,8 @@ namespace TransactionAPI.Controllers
                 {
                     try
                     {
-                        var transaction = ExcelWorking.ParseFromCSV(csv);
+                        var transaction = BusinessClass.ParseFromCSV(csv);
+
 
                         transactions.Add(transaction);
                     }

@@ -1,7 +1,7 @@
 ﻿using System.Transactions;
 using TransactionAPI.Models;
 
-namespace TransactionAPI.Services
+namespace TransactionAPI.Services.Interfaces
 {
     public interface ITransactionService
     {

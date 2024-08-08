@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Globalization;
 using TransactionAPI.ContextDB;
-using TransactionAPI.Services;
+using TransactionAPI.Services.Implementation;
 
 namespace TransactionAPI
 {
@@ -17,12 +17,6 @@ namespace TransactionAPI
             // Add services to the container.
             builder.Services.AddDbContext<TransactContextDB>();
             builder.Services.AddTransient<TransactionService>();
-
-            //using (var context = new TransactContextDB())
-            //{
-            //    var res = context.test.ToList();
-            //    string k = "dsad";
-            //}
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -19,5 +19,7 @@ namespace TransactionAPI.Models
         public DateTime TransactionDate { get; set; }
         [Column("client_location")]
         public string? ClientLocation { get; set; }
+
+        public virtual GeneralTimeModel? GeneralTime { get; set; }
     }
 }

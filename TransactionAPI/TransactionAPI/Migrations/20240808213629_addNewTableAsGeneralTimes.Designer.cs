@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TransactionAPI.ContextDB;
 
@@ -11,9 +12,11 @@ using TransactionAPI.ContextDB;
 namespace TransactionAPI.Migrations
 {
     [DbContext(typeof(TransactContextDB))]
-    partial class TransactContextDBModelSnapshot : ModelSnapshot
+    [Migration("20240808213629_addNewTableAsGeneralTimes")]
+    partial class addNewTableAsGeneralTimes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

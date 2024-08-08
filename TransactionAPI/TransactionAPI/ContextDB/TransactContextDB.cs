@@ -10,7 +10,7 @@ namespace TransactionAPI.ContextDB
         private readonly string connectionString = "DefaultConnection";
 
         public DbSet<TransactionModel> Transactions { get; set; }
-        public DbSet<test> test { get; set; }
+        public DbSet<GeneralTimeModel> GeneralTimes { get; set; }
 
         public TransactContextDB() { }
         public TransactContextDB(DbContextOptions<TransactContextDB> options) : base(options) { }

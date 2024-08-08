@@ -138,3 +138,5 @@ D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\obj\Debug\net8.0\Transactio
 D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\obj\Debug\net8.0\TransactionAPI.genruntimeconfig.cache
 D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\obj\Debug\net8.0\ref\TransactionAPI.dll
 D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\bin\Debug\net8.0\CsvHelper.dll
+D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\bin\Debug\net8.0\Newtonsoft.Json.dll
+D:\RepoGit\TransactAPI\TransactionAPI\TransactionAPI\bin\Debug\net8.0\NodaTime.dll

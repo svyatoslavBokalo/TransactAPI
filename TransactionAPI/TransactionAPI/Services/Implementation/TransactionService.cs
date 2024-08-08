@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 using System.Transactions;
 using TransactionAPI.Models;
 
-namespace TransactionAPI.Services
+namespace TransactionAPI.Services.Implementation
 {
     public class TransactionService
     {
@@ -11,7 +11,7 @@ namespace TransactionAPI.Services
 
         public TransactionService(IConfiguration configuration)
         {
-            this._connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
         public async Task<IEnumerable<TransactionModel>> GetTransactionsAsync()
@@ -37,11 +37,20 @@ namespace TransactionAPI.Services
                         transaction_date = @TransactionDate,
                         client_location = @ClientLocation
                     WHERE transaction_id = @TransactionId
+                    UPDATE GenerelTimes
+                    SET name = @Name,
+                        email = @Email,
+                        amount = @Amount,
+                        transaction_date = @TransactionDate,
+                        client_location = @ClientLocation
+                    WHERE transaction_id = @TransactionId
                 END
                 ELSE
                 BEGIN
                     INSERT INTO Transactions (transaction_id, name, email, amount, transaction_date, client_location)
                     VALUES (@TransactionId, @Name, @Email, @Amount, @TransactionDate, @ClientLocation)
+                    INSERT INTO GenerelTimes (transaction_id, timezone, general_time)
+                    VALUES (@TransactionId, @TimeZone, @GeneralTime)
                 END";
                 await connection.ExecuteAsync(sql, transaction);
             }
