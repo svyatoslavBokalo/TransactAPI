@@ -14,6 +14,8 @@ namespace TransactionAPI.Services.Implementation
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
+
+        // in this method we add or update our data which we receive from csv file and calculate for GeneralTimes table
         public async Task AddOrUpdateGeneralTimeAsync(GeneralTimeModel generalTime)
         {
             using (var connection = new SqlConnection(_connectionString))

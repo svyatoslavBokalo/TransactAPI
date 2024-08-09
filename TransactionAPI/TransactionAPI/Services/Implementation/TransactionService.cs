@@ -16,6 +16,7 @@ namespace TransactionAPI.Services.Implementation
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
+        // in this method we get all data from our Transactions table
         public async Task<IEnumerable<TransactionModel>> GetTransactionsAsync()
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -25,6 +26,7 @@ namespace TransactionAPI.Services.Implementation
             }
         }
 
+        // in this method we add or update our data which we receive from csv file
         public async Task AddOrUpdateTransactionAsync(TransactionModel transaction)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -60,14 +62,15 @@ namespace TransactionAPI.Services.Implementation
             }
         }
 
+        // this method for get data from db which are in the certain period and the certain time zone
         public async Task<IEnumerable<TransactionModel>> GetTransactionsInUserTimeZoneAsync(DateTime startDate, DateTime endDate, string userCoordinates)
         {
-            // Отримуємо часову зону користувача на основі його координат
+            // We get the user's time zone based on its coordinates
             string userTimeZone = BusinessClass.GetTimeZoneFromCoordinates(userCoordinates);
 
-            // Конвертуємо діапазон дат у UTC
-            var startDateUtc = BusinessClass.ConvertToUtc(startDate.ToString(), userTimeZone);
-            var endDateUtc = BusinessClass.ConvertToUtc(endDate.ToString(), userTimeZone);
+            // Convert date range to UTC
+            var startDateUtc = BusinessClass.ConvertToGeneralTimeZone(startDate.ToString(), userTimeZone);
+            var endDateUtc = BusinessClass.ConvertToGeneralTimeZone(endDate.ToString(), userTimeZone);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -90,14 +93,15 @@ namespace TransactionAPI.Services.Implementation
             }
         }
 
+        // this as previous method (GetTransactionsInUserTimeZoneAsync) but in this case it's for all time zone
         public async Task<IEnumerable<TransactionModel>> GetTransactionsAllTimeZoneAndPeriodTimeAsync(DateTime startDate, DateTime endDate, string userCoordinates)
         {
-            // Отримуємо часову зону користувача на основі його координат
+            // We get the user's time zone based on its coordinates
             string userTimeZone = BusinessClass.GetTimeZoneFromCoordinates(userCoordinates);
 
-            // Конвертуємо діапазон дат у UTC
-            var startDateUtc = BusinessClass.ConvertToUtc(startDate.ToString(), userTimeZone);
-            var endDateUtc = BusinessClass.ConvertToUtc(endDate.ToString(), userTimeZone);
+            // Convert date range to UTC
+            var startDateUtc = BusinessClass.ConvertToGeneralTimeZone(startDate.ToString(), userTimeZone);
+            var endDateUtc = BusinessClass.ConvertToGeneralTimeZone(endDate.ToString(), userTimeZone);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -119,6 +123,28 @@ namespace TransactionAPI.Services.Implementation
                     UserTimeZone = userTimeZone
                 });
 
+                return transactions;
+            }
+        }
+
+        //This method recieves a list of transactions from the database,
+        //selecting only those columns that were specified in the user's request.
+        public async Task<IEnumerable<dynamic>> GetSelectedColumnsTransactionsAsync(TransactionExportRequest request)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var selectedColumns = new List<string>();
+
+                if (request.IncludeTransactionId) selectedColumns.Add("transaction_id AS TransactionId");
+                if (request.IncludeName) selectedColumns.Add("name AS Name");
+                if (request.IncludeEmail) selectedColumns.Add("email AS Email");
+                if (request.IncludeAmount) selectedColumns.Add("amount AS Amount");
+                if (request.IncludeTransactionDate) selectedColumns.Add("transaction_date AS TransactionDate");
+                if (request.IncludeClientLocation) selectedColumns.Add("client_location AS ClientLocation");
+
+                var sql = $"SELECT {string.Join(", ", selectedColumns)} FROM Transactions";
+
+                var transactions = await connection.QueryAsync<dynamic>(sql);
                 return transactions;
             }
         }

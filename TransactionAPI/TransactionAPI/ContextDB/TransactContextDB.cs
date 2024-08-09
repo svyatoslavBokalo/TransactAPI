@@ -6,6 +6,7 @@ namespace TransactionAPI.ContextDB
 {
     public class TransactContextDB : DbContext
     {
+        // i add this paramaters if we want to change path config or connectionString
         private readonly string pathConfig = "appsettings.json";
         private readonly string connectionString = "DefaultConnection";
 
@@ -14,8 +15,6 @@ namespace TransactionAPI.ContextDB
 
         public TransactContextDB() { }
         public TransactContextDB(DbContextOptions<TransactContextDB> options) : base(options) { }
-
-        //If you want to change your connectionString and path config
         public TransactContextDB(string newPathConfig, string newConnectionString)
         {
             this.pathConfig = newPathConfig;
@@ -24,21 +23,6 @@ namespace TransactionAPI.ContextDB
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //if (!optionsBuilder.IsConfigured)
-            //{
-            //    IConfigurationRoot configuration = new ConfigurationBuilder()
-            //        .SetBasePath(Directory.GetCurrentDirectory())
-            //        .AddJsonFile(pathConfig)
-            //        .Build();
-
-            //    optionsBuilder.UseSqlServer(configuration.GetConnectionString(connectionString), sqlOptions =>
-            //    {
-            //        sqlOptions.EnableRetryOnFailure(
-            //            maxRetryCount: 5,
-            //            maxRetryDelay: TimeSpan.FromSeconds(30),
-            //            errorNumbersToAdd: null);
-            //    });
-            //}
             if (!optionsBuilder.IsConfigured)
             {
                 IConfigurationRoot configuration = new ConfigurationBuilder()

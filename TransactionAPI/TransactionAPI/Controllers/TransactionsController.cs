@@ -22,14 +22,18 @@ namespace TransactionAPI.Controllers
             this._generalTimeService = generalTimeService;
         }
 
+
+        // in this method I get all the data from the db
         [HttpGet("GetAllTransactions")]
         public async Task<IEnumerable<TransactionModel>> GetTransactions()
         {
             return await _transactionService.GetTransactionsAsync();
         }
 
-        [HttpPost("add transaction using API (https:/timezonedb.com/ (but if you want to use this api it should to register in this site" +
-            "and get apiKey then change GeneralConstClass.ApiKey))")]
+
+        // in this method, I insert the data into the database, but through the API, so you need to register on this site(https://timezonedb.com/) and get ApiKay
+        [HttpPost("add transaction using API (https:/timezonedb.com/ (but if you want to use this api it should register in this site" +
+            "and get apiKey then change GeneralConst.ApiKey))")]
         public async Task<IActionResult> ImportTransaction([FromBody] TransactionModel transaction)
         {
             if (transaction == null)
@@ -37,13 +41,12 @@ namespace TransactionAPI.Controllers
                 return BadRequest("Invalid transaction data.");
             }
 
-            // Отримання часового поясу
+            // Getting the time zone
             var timeZone = await BusinessClass.GetTimeZoneInfo(transaction.ClientLocation);
 
-            // Розрахунок загального часу (UTC)
-            var generalTimeUtc = BusinessClass.ConvertToUtc(transaction.TransactionDate.ToString("yyyy-MM-ddTHH:mm:ss"), timeZone);
+            //Calculation of total time 
+            var generalTimeUtc = BusinessClass.ConvertToGeneralTimeZone(transaction.TransactionDate.ToString("yyyy-MM-ddTHH:mm:ss"), timeZone);
 
-            // Створення GeneralTimeModel
             var generalTime = new GeneralTimeModel
             {
                 TransactionId = transaction.TransactionId,
@@ -58,7 +61,7 @@ namespace TransactionAPI.Controllers
         }
 
 
-
+        // in this method we import the csv file to db
         [HttpPost("importFile")]
         public async Task<IActionResult> ImportTransactions(IFormFile file)
         {
@@ -104,6 +107,7 @@ namespace TransactionAPI.Controllers
             return Ok();
         }
 
+        // in this method I did task 4 (get data in certain time zone)
         [HttpGet("transactions(certain time zone) -> user search transactions which are in the period of a certain time and certain time zone")]
         public async Task<IActionResult> GetTransactionsInUserTimeZone(
             [FromQuery] DateTime startDate,
@@ -116,18 +120,20 @@ namespace TransactionAPI.Controllers
             return Ok(transactions);
         }
 
+
+        // in this method I did task 5 (get all data in certain period)
         [HttpGet("transactions(all time zone) -> user search transactions which are in the period of a certain time in all time zone")]
         public async Task<IActionResult> GetTransactionsInPeriodTime(
             [FromQuery] DateTime startDate,
             [FromQuery] DateTime endDate,
             [FromQuery] string userCoordinates)
         {
-            // Отримуємо транзакції з сервісу
             var transactions = await _transactionService.GetTransactionsAllTimeZoneAndPeriodTimeAsync(startDate, endDate, userCoordinates);
 
             return Ok(transactions);
         }
 
+        // in this method I did task 6 (get all data in january 2024)
         [HttpGet("transactions(in January 2024) -> user search transactions which occurred in January 2024 across all time zones")]
         public async Task<IActionResult> GetTransactionsInJanuary([FromQuery] string userCoordinates)
         {
@@ -136,5 +142,40 @@ namespace TransactionAPI.Controllers
 
             return Ok(transactions);
         }
+
+        // in this method we can export csv file with certain columns
+        [HttpGet("export-transactions")]
+        public async Task<IActionResult> ExportTransactionsToCsv([FromQuery] TransactionExportRequest request)
+        {
+            var transactions = await _transactionService.GetSelectedColumnsTransactionsAsync(request);
+
+            var memoryStream = new MemoryStream();
+            var streamWriter = new StreamWriter(memoryStream);
+            var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
+
+            // Write column titles
+            foreach (var header in ((IDictionary<string, object>)transactions.First()).Keys)
+            {
+                csvWriter.WriteField(header);
+            }
+            csvWriter.NextRecord();
+
+            // Write data
+            foreach (var transaction in transactions)
+            {
+                foreach (var field in ((IDictionary<string, object>)transaction).Values)
+                {
+                    csvWriter.WriteField(field);
+                }
+                csvWriter.NextRecord();
+            }
+
+            await csvWriter.FlushAsync();
+            await streamWriter.FlushAsync();
+            memoryStream.Position = 0;
+
+            return File(memoryStream, "text/csv", "transactions.csv");
+        }
+
     }
 }

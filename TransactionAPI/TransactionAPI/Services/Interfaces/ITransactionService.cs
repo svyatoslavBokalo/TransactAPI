@@ -3,6 +3,7 @@ using TransactionAPI.Models;
 
 namespace TransactionAPI.Services.Interfaces
 {
+    //interface for TransactionService
     public interface ITransactionService
     {
         public Task<IEnumerable<TransactionModel>> GetTransactionsAsync();

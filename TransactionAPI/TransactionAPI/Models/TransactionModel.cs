@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TransactionAPI.Models
 {
+    // transaction model from csv file
     [Table("Transactions")]
     public class TransactionModel
     {
