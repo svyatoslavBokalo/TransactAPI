@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using GeoTimeZone;
 using Newtonsoft.Json.Linq;
 using NodaTime;
 using System.Globalization;
@@ -25,6 +26,7 @@ namespace TransactionAPI.BusinessLogic
                                     };
         }
 
+        // this method is parser transaction from csv file
         static public TransactionModel ParseTransaction(CsvReader csv)
         {
             var dateFormats = new[] { "dd/MM/yyyy HH:mm", "yyyy-MM-dd HH:mm:ss" };
@@ -51,10 +53,11 @@ namespace TransactionAPI.BusinessLogic
             return transaction;
         }
 
+        // this method is parser GeneralTimeModel from csv file
         static public async Task<GeneralTimeModel> ParseGeneralTime(CsvReader csv)
         {
             List<string> rows = GetRowFromCSV(csv);
-            string timeZone = await GetTimeZoneInfo(rows[5]);
+            string timeZone = GetTimeZoneFromCoordinates(rows[5]);
             DateTime convertedTimeToUTC0 = ConvertToUtc(rows[4], timeZone);
             return new GeneralTimeModel()
                         {
@@ -84,6 +87,18 @@ namespace TransactionAPI.BusinessLogic
             string result = $"{timeZoneId} UTC{(gmtOffset >= 0 ? "+" : "")}{gmtOffset}";
 
             return result;
+        }
+
+        static string GetTimeZoneFromCoordinates(string coordinates)
+        {
+            var coord = coordinates.Split(',');
+            double latitude = double.Parse(coord[0]);
+            double longitude = double.Parse(coord[1]);
+
+            // Використання GeoTimeZone для отримання ID тайм-зони IANA
+            var timeZoneId = TimeZoneLookup.GetTimeZone(latitude, longitude).Result;
+
+            return timeZoneId;
         }
 
         static public DateTime ConvertToUtc(string dateTimeString, string timeZoneId)

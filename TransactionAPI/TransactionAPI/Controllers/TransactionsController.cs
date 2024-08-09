@@ -40,7 +40,8 @@ namespace TransactionAPI.Controllers
         //    return Ok();
         //}
 
-        [HttpPost("addOneTransaction")]
+        [HttpPost("add transaction using API (https://timezonedb.com/ (but if you want to use this api it should to register in this site" +
+            "and get apiKey then change GeneralConstClass.ApiKey))")]
         public async Task<IActionResult> ImportTransaction([FromBody] TransactionModel transaction)
         {
             if (transaction == null)
@@ -62,7 +63,6 @@ namespace TransactionAPI.Controllers
                 GeneralTime = generalTimeUtc
             };
 
-            // Додати або оновити generalTime
             await _transactionService.AddOrUpdateTransactionAsync(transaction);
             await _generalTimeService.AddOrUpdateGeneralTimeAsync(generalTime);
 
