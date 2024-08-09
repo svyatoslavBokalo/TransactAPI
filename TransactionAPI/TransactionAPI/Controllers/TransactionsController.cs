@@ -14,10 +14,12 @@ namespace TransactionAPI.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly TransactionService _transactionService;
+        private readonly GeneralTimeService _generalTimeService;
 
-        public TransactionsController(TransactionService transactionService)
+        public TransactionsController(TransactionService transactionService, GeneralTimeService generalTimeService)
         {
-            _transactionService = transactionService;
+            this._transactionService = transactionService;
+            this._generalTimeService = generalTimeService;
         }
 
         [HttpGet("GetAllTransactions")]
@@ -26,12 +28,48 @@ namespace TransactionAPI.Controllers
             return await _transactionService.GetTransactionsAsync();
         }
 
+        //[HttpPost("addOneTransaction")]
+        //public async Task<IActionResult> ImportTransaction([FromBody] TransactionModel transaction)
+        //{
+        //    await _transactionService.AddOrUpdateTransactionAsync(transaction);
+        //    GeneralTimeModel generalTime = new GeneralTimeModel();
+        //    generalTime.TransactionId = transaction.TransactionId;
+        //    generalTime.TimeZone = await BusinessClass.GetTimeZoneInfo(transaction.ClientLocation);
+        //    generalTime.GeneralTime = BusinessClass.ConvertToUtc(transaction.TransactionDate.ToString(), generalTime.TimeZone);
+        //    await _generalTimeService.AddOrUpdateGeneralTimeAsync(generalTime);
+        //    return Ok();
+        //}
+
         [HttpPost("addOneTransaction")]
         public async Task<IActionResult> ImportTransaction([FromBody] TransactionModel transaction)
         {
+            if (transaction == null)
+            {
+                return BadRequest("Invalid transaction data.");
+            }
+
+            // Отримання часового поясу
+            var timeZone = await BusinessClass.GetTimeZoneInfo(transaction.ClientLocation);
+
+            // Розрахунок загального часу (UTC)
+            var generalTimeUtc = BusinessClass.ConvertToUtc(transaction.TransactionDate.ToString("yyyy-MM-ddTHH:mm:ss"), timeZone);
+
+            // Створення GeneralTimeModel
+            var generalTime = new GeneralTimeModel
+            {
+                TransactionId = transaction.TransactionId,
+                TimeZone = timeZone,
+                GeneralTime = generalTimeUtc
+            };
+
+            // Додати або оновити generalTime
             await _transactionService.AddOrUpdateTransactionAsync(transaction);
+            await _generalTimeService.AddOrUpdateGeneralTimeAsync(generalTime);
+
             return Ok();
         }
+
+
 
         [HttpPost("importFile")]
         public async Task<IActionResult> ImportTransactions(IFormFile file)
@@ -42,6 +80,7 @@ namespace TransactionAPI.Controllers
             }
 
             var transactions = new List<TransactionModel>();
+            var generalTimes = new List<GeneralTimeModel>();
 
             using (var stream = new StreamReader(file.OpenReadStream()))
             using (var csv = new CsvReader(stream, CultureInfo.InvariantCulture))
@@ -53,10 +92,13 @@ namespace TransactionAPI.Controllers
                 {
                     try
                     {
-                        var transaction = BusinessClass.ParseFromCSV(csv);
+                        var transaction = BusinessClass.ParseTransaction(csv);
+                        var generalTime = await BusinessClass.ParseGeneralTime(csv);
 
 
                         transactions.Add(transaction);
+                        generalTimes.Add(generalTime);
+                        
                     }
                     catch (Exception ex)
                     {
@@ -65,31 +107,13 @@ namespace TransactionAPI.Controllers
                 }
             }
 
-            foreach (var transaction in transactions)
+            for(int i = 0; i < transactions.Count; i++)
             {
-                await _transactionService.AddOrUpdateTransactionAsync(transaction);
+                await _transactionService.AddOrUpdateTransactionAsync(transactions[i]);
+                await _generalTimeService.AddOrUpdateGeneralTimeAsync(generalTimes[i]);
             }
 
             return Ok();
         }
-        private DateTime ParseDate(string dateStr)
-        {
-            DateTime date;
-            if (!DateTime.TryParseExact(dateStr, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
-            {
-                // Handle parsing error or assign a default value
-                date = DateTime.MinValue; // or throw an exception if necessary
-            }
-            return date;
-        }
-        //[HttpPost]
-        //public async Task<IActionResult> ImportTransactions([FromBody] List<TransactionModel> transactions)
-        //{
-        //    foreach (var transaction in transactions)
-        //    {
-        //        await _transactionService.AddOrUpdateTransactionAsync(transaction);
-        //    }
-        //    return Ok();
-        //}
     }
 }

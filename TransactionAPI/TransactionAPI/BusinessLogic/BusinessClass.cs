@@ -12,35 +12,60 @@ namespace TransactionAPI.BusinessLogic
     static public class BusinessClass
     {
         private static readonly HttpClient client = new HttpClient();
-        static public TransactionModel ParseFromCSV(CsvReader csv)
+
+        // this method so that the code is not repeated, because it's called both in "ParseTransaction" and "ParseGeneralTime" 
+        static public List<string> GetRowFromCSV(CsvReader csv)
+        {
+            return new List<string> { csv.GetField("transaction_id") ,
+                                        csv.GetField("name"),
+                                        csv.GetField("email"),
+                                        csv.GetField("amount").Replace("$", "").Trim(),
+                                        csv.GetField("transaction_date"),
+                                        csv.GetField("client_location"),
+                                    };
+        }
+
+        static public TransactionModel ParseTransaction(CsvReader csv)
         {
             var dateFormats = new[] { "dd/MM/yyyy HH:mm", "yyyy-MM-dd HH:mm:ss" };
 
-            var transaction = new TransactionModel
-            {
-                TransactionId = csv.GetField("transaction_id"),
-                Name = csv.GetField("name"),
-                Email = csv.GetField("email"),
-                Amount = decimal.Parse(csv.GetField("amount").Replace("$", "").Trim()),
-                ClientLocation = csv.GetField("client_location")
-            };
-
-            var transactionDateStr = csv.GetField("transaction_date");
+            List<string> rows = GetRowFromCSV(csv);
+            var transactionDateStr = rows[4];
             DateTime transactionDate = new DateTime();
             if (string.IsNullOrWhiteSpace(transactionDateStr) ||
                 !DateTime.TryParseExact(transactionDateStr, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out transactionDate))
             {
-                System.Console.WriteLine($"Invalid or empty date format for transaction_id: {transaction.TransactionId}, date: {transactionDateStr}");
+                System.Console.WriteLine($"Invalid or empty date format for transaction_id: {rows[0]}, date: {transactionDateStr}");
             }
 
-            transaction.TransactionDate = transactionDate;
+            var transaction = new TransactionModel
+            {
+                TransactionId = rows[0],
+                Name = rows[1],
+                Email = rows[2],
+                Amount = decimal.Parse(rows[3]),
+                TransactionDate = transactionDate,
+                ClientLocation = rows[5]
+            };
 
             return transaction;
         }
 
-        static async Task<string> GetTimeZoneInfo(string dateTimeString, string coordinates)
+        static public async Task<GeneralTimeModel> ParseGeneralTime(CsvReader csv)
         {
-            DateTime dateTime = DateTime.Parse(dateTimeString);
+            List<string> rows = GetRowFromCSV(csv);
+            string timeZone = await GetTimeZoneInfo(rows[5]);
+            DateTime convertedTimeToUTC0 = ConvertToUtc(rows[4], timeZone);
+            return new GeneralTimeModel()
+                        {
+                            TransactionId = rows[0],
+                            TimeZone = timeZone,
+                            GeneralTime = convertedTimeToUTC0
+                        };
+        }
+
+        static public async Task<string> GetTimeZoneInfo(string coordinates)
+        {
             var coords = coordinates.Split(',');
             double latitude = double.Parse(coords[0]);
             double longitude = double.Parse(coords[1]);
@@ -61,7 +86,7 @@ namespace TransactionAPI.BusinessLogic
             return result;
         }
 
-        static DateTime ConvertToUtc(string dateTimeString, string timeZoneId)
+        static public DateTime ConvertToUtc(string dateTimeString, string timeZoneId)
         {
             // Видаляємо все, що йде після пробілу в імені тайм-зони (якщо є суфікс на кшталт UTC-4)
             if (timeZoneId.Contains(" "))

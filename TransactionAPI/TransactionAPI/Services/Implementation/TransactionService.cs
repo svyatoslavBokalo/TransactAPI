@@ -37,22 +37,24 @@ namespace TransactionAPI.Services.Implementation
                         transaction_date = @TransactionDate,
                         client_location = @ClientLocation
                     WHERE transaction_id = @TransactionId
-                    UPDATE GenerelTimes
-                    SET name = @Name,
-                        email = @Email,
-                        amount = @Amount,
-                        transaction_date = @TransactionDate,
-                        client_location = @ClientLocation
-                    WHERE transaction_id = @TransactionId
                 END
                 ELSE
                 BEGIN
                     INSERT INTO Transactions (transaction_id, name, email, amount, transaction_date, client_location)
                     VALUES (@TransactionId, @Name, @Email, @Amount, @TransactionDate, @ClientLocation)
-                    INSERT INTO GenerelTimes (transaction_id, timezone, general_time)
-                    VALUES (@TransactionId, @TimeZone, @GeneralTime)
                 END";
-                await connection.ExecuteAsync(sql, transaction);
+
+                var parameters = new
+                {
+                    transaction.TransactionId,
+                    transaction.Name,
+                    transaction.Email,
+                    transaction.Amount,
+                    transaction.TransactionDate,
+                    transaction.ClientLocation
+                };
+
+                await connection.ExecuteAsync(sql, parameters);
             }
         }
     }

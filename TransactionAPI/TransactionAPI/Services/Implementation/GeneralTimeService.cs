@@ -19,20 +19,27 @@ namespace TransactionAPI.Services.Implementation
             using (var connection = new SqlConnection(_connectionString))
             {
                 string sql = @"
-                IF EXISTS (SELECT 1 FROM GenerelTimes WHERE transaction_id = @TransactionId)
+                IF EXISTS (SELECT 1 FROM GeneralTimes WHERE transaction_id = @TransactionId)
                 BEGIN
-                    UPDATE GenerelTimes
-                    SET transaction_id = @TransactionId,
-                        timezone = @TimeZone,
-                        general_time = @GeneralTime,
+                    UPDATE GeneralTimes
+                    SET timezone = @TimeZone,
+                        general_time = @GeneralTime
                     WHERE transaction_id = @TransactionId
                 END
                 ELSE
                 BEGIN
-                    INSERT INTO GenerelTimes (transaction_id, timezone, general_time)
+                    INSERT INTO GeneralTimes (transaction_id, timezone, general_time)
                     VALUES (@TransactionId, @TimeZone, @GeneralTime)
                 END";
-                await connection.ExecuteAsync(sql, generalTime);
+
+                var parameters = new
+                {
+                    TransactionId = generalTime.TransactionId,
+                    TimeZone = generalTime.TimeZone,
+                    GeneralTime = generalTime.GeneralTime
+                };
+
+                await connection.ExecuteAsync(sql, parameters);
             }
         }
     }
