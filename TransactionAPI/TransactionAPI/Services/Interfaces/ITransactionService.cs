@@ -9,5 +9,7 @@ namespace TransactionAPI.Services.Interfaces
 
         public Task AddOrUpdateTransactionAsync(TransactionModel transaction);
         public Task<IEnumerable<TransactionModel>> GetTransactionsInUserTimeZoneAsync(DateTime startDate, DateTime endDate, string userCoordinates);
+
+        public Task<IEnumerable<TransactionModel>> GetTransactionsAllTimeZoneAndPeriodTimeAsync(DateTime startDate, DateTime endDate, string userCoordinates);
     }
 }

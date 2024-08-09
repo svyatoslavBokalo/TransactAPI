@@ -104,7 +104,7 @@ namespace TransactionAPI.Controllers
             return Ok();
         }
 
-        [HttpGet("transactions -> user search transactions which are in the period of a certain time")]
+        [HttpGet("transactions(certain time zone) -> user search transactions which are in the period of a certain time and certain time zone")]
         public async Task<IActionResult> GetTransactionsInUserTimeZone(
             [FromQuery] DateTime startDate,
             [FromQuery] DateTime endDate,
@@ -112,6 +112,18 @@ namespace TransactionAPI.Controllers
         {
             // Отримуємо транзакції з сервісу
             var transactions = await _transactionService.GetTransactionsInUserTimeZoneAsync(startDate, endDate, userCoordinates);
+
+            return Ok(transactions);
+        }
+
+        [HttpGet("transactions(all time zone) -> user search transactions which are in the period of a certain time in all time zone")]
+        public async Task<IActionResult> GetTransactionsInPeriodTime(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate,
+            [FromQuery] string userCoordinates)
+        {
+            // Отримуємо транзакції з сервісу
+            var transactions = await _transactionService.GetTransactionsAllTimeZoneAndPeriodTimeAsync(startDate, endDate, userCoordinates);
 
             return Ok(transactions);
         }
