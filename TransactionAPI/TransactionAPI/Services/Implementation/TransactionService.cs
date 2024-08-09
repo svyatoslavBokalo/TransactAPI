@@ -1,11 +1,13 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Transactions;
+using TransactionAPI.BusinessLogic;
 using TransactionAPI.Models;
+using TransactionAPI.Services.Interfaces;
 
 namespace TransactionAPI.Services.Implementation
 {
-    public class TransactionService
+    public class TransactionService : ITransactionService
     {
         private readonly string _connectionString;
 
@@ -55,6 +57,36 @@ namespace TransactionAPI.Services.Implementation
                 };
 
                 await connection.ExecuteAsync(sql, parameters);
+            }
+        }
+
+        public async Task<IEnumerable<TransactionModel>> GetTransactionsInUserTimeZoneAsync(DateTime startDate, DateTime endDate, string userCoordinates)
+        {
+            // Отримуємо часову зону користувача на основі його координат
+            string userTimeZone = BusinessClass.GetTimeZoneFromCoordinates(userCoordinates);
+
+            // Конвертуємо діапазон дат у UTC
+            var startDateUtc = BusinessClass.ConvertToUtc(startDate.ToString(), userTimeZone);
+            var endDateUtc = BusinessClass.ConvertToUtc(endDate.ToString(), userTimeZone);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                string sql = @"
+                    SELECT t.transaction_id AS TransactionId, 
+                           t.name AS Name, 
+                           t.email AS Email, 
+                           t.amount AS Amount, 
+                           t.transaction_date AS TransactionDate, 
+                           t.client_location AS ClientLocation 
+                    FROM GeneralTimes g
+                    INNER JOIN Transactions t ON g.transaction_id = t.transaction_id
+                    WHERE g.general_time >= @StartDateUtc AND g.general_time <= @EndDateUtc AND g.timezone = @UserTimeZone";
+
+                var transactions = await connection.QueryAsync<TransactionModel>(sql, new { StartDateUtc = startDateUtc, 
+                                                                                            EndDateUtc = endDateUtc, 
+                                                                                            UserTimeZone = userTimeZone });
+
+                return transactions;
             }
         }
     }

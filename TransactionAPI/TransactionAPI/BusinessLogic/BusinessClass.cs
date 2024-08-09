@@ -89,7 +89,7 @@ namespace TransactionAPI.BusinessLogic
             return result;
         }
 
-        static string GetTimeZoneFromCoordinates(string coordinates)
+        static public string GetTimeZoneFromCoordinates(string coordinates)
         {
             var coord = coordinates.Split(',');
             double latitude = double.Parse(coord[0]);

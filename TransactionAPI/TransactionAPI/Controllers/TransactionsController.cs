@@ -28,19 +28,7 @@ namespace TransactionAPI.Controllers
             return await _transactionService.GetTransactionsAsync();
         }
 
-        //[HttpPost("addOneTransaction")]
-        //public async Task<IActionResult> ImportTransaction([FromBody] TransactionModel transaction)
-        //{
-        //    await _transactionService.AddOrUpdateTransactionAsync(transaction);
-        //    GeneralTimeModel generalTime = new GeneralTimeModel();
-        //    generalTime.TransactionId = transaction.TransactionId;
-        //    generalTime.TimeZone = await BusinessClass.GetTimeZoneInfo(transaction.ClientLocation);
-        //    generalTime.GeneralTime = BusinessClass.ConvertToUtc(transaction.TransactionDate.ToString(), generalTime.TimeZone);
-        //    await _generalTimeService.AddOrUpdateGeneralTimeAsync(generalTime);
-        //    return Ok();
-        //}
-
-        [HttpPost("add transaction using API (https://timezonedb.com/ (but if you want to use this api it should to register in this site" +
+        [HttpPost("add transaction using API (https:/timezonedb.com/ (but if you want to use this api it should to register in this site" +
             "and get apiKey then change GeneralConstClass.ApiKey))")]
         public async Task<IActionResult> ImportTransaction([FromBody] TransactionModel transaction)
         {
@@ -114,6 +102,18 @@ namespace TransactionAPI.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet("transactions -> user search transactions which are in the period of a certain time")]
+        public async Task<IActionResult> GetTransactionsInUserTimeZone(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate,
+            [FromQuery] string userCoordinates)
+        {
+            // Отримуємо транзакції з сервісу
+            var transactions = await _transactionService.GetTransactionsInUserTimeZoneAsync(startDate, endDate, userCoordinates);
+
+            return Ok(transactions);
         }
     }
 }
