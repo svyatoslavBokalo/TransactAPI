@@ -127,5 +127,14 @@ namespace TransactionAPI.Controllers
 
             return Ok(transactions);
         }
+
+        [HttpGet("transactions(in January 2024) -> user search transactions which occurred in January 2024 across all time zones")]
+        public async Task<IActionResult> GetTransactionsInJanuary([FromQuery] string userCoordinates)
+        {
+            // Отримуємо транзакції з сервісу
+            var transactions = await _transactionService.GetTransactionsAllTimeZoneAndPeriodTimeAsync(new DateTime(2024,01,01), new DateTime(2024,01,02), userCoordinates);
+
+            return Ok(transactions);
+        }
     }
 }
